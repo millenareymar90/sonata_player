@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/get_navigation.dart';
 import 'package:sonata_player/model/song_model.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:sonata_player/widgets/player_buttons.dart';
@@ -14,33 +16,28 @@ class SongScreen extends StatefulWidget {
 
 class _SongScreenState extends State<SongScreen> {
   AudioPlayer audioPlayer = AudioPlayer();
-  Song song = Song.songs[0];
+  Song song = Get.arguments ?? Song.songs[0];
 
   @override
-    void initState() {
-      super.initState();
+  void initState() {
+    super.initState();
 
-      audioPlayer.setAudioSource(
-        ConcatenatingAudioSource(
-          children: [
-            AudioSource.uri(
-              Uri.parse('asset:///${song.url}')
-              )
-            ]
-          )
-        );
-    }
+    audioPlayer.setAudioSource(ConcatenatingAudioSource(children: [
+      AudioSource.uri(Uri.parse('asset:///${song.url}')),
+      AudioSource.uri(Uri.parse('asset:///${Song.songs[1].url}')),
+      AudioSource.uri(Uri.parse('asset:///${Song.songs[2].url}'))
+    ]));
+  }
 
-    @override
-    void dispose() {
-      audioPlayer.dispose();
-      super.dispose();
-    }
+  @override
+  void dispose() {
+    audioPlayer.dispose();
+    super.dispose();
+  }
 
   Stream<SeekBarData> get _seekBarDataStream =>
       rxdart.Rx.combineLatest2<Duration, Duration?, SeekBarData>(
-          audioPlayer.positionStream, 
-          audioPlayer.durationStream,
+          audioPlayer.positionStream, audioPlayer.durationStream,
           (Duration position, Duration? duration) {
         return SeekBarData(
             position: position, duration: duration ?? Duration.zero);
@@ -50,6 +47,7 @@ class _SongScreenState extends State<SongScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -63,7 +61,10 @@ class _SongScreenState extends State<SongScreen> {
           ),
           const _BackgroundFilter(),
           _MusicPLayer(
-              seekBarDataStream: _seekBarDataStream, audioPlayer: audioPlayer)
+            seekBarDataStream: _seekBarDataStream,
+            audioPlayer: audioPlayer,
+            song: song,
+          )
         ],
       ),
     );
@@ -74,19 +75,41 @@ class _MusicPLayer extends StatelessWidget {
   const _MusicPLayer({
     required Stream<SeekBarData> seekBarDataStream,
     required this.audioPlayer,
+    required this.song,
   }) : _seekBarDataStream = seekBarDataStream;
 
   final Stream<SeekBarData> _seekBarDataStream;
   final AudioPlayer audioPlayer;
+  final Song song;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 40.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 50.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(
+            song.title,
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall!
+                .copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Text(
+            song.description,
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall!
+                .copyWith(color: Colors.white),
+          ),
+          const SizedBox(
+            height: 30,
+          ),
           StreamBuilder<SeekBarData>(
               stream: _seekBarDataStream,
               builder: (context, snapshot) {
@@ -98,6 +121,26 @@ class _MusicPLayer extends StatelessWidget {
                 );
               }),
           PlayerButtons(audioPlayer: audioPlayer),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              IconButton(
+                  iconSize: 35,
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.settings,
+                    color: Colors.white,
+                  )),
+              IconButton(
+                  iconSize: 35,
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.cloud_download,
+                    color: Colors.white,
+                  )),
+            ],
+          )
         ],
       ),
     );

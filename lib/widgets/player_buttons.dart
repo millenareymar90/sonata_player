@@ -74,7 +74,21 @@ class PlayerButtons extends StatelessWidget {
               } else {
                 return const CircularProgressIndicator();
               }
-            }),
+            }
+        ),
+        StreamBuilder<SequenceState?>(
+          stream: audioPlayer.sequenceStateStream, 
+          builder: (context, index) {
+            return IconButton(
+              onPressed: audioPlayer.hasNext  ? audioPlayer.seekToNext : null, 
+              iconSize: 45,
+              icon: const Icon(
+                Icons.skip_next,
+                color: Colors.white,
+              ) 
+            );
+          }
+        ),
       ],
     );
   }
