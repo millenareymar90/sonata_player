@@ -51,7 +51,6 @@ class PlaylistScreen extends StatelessWidget {
 
 class _PlaylistSongs extends StatelessWidget {
   const _PlaylistSongs({
-    super.key,
     required this.playlist,
   });
 
@@ -102,9 +101,7 @@ class _PlaylistSongs extends StatelessWidget {
 }
 
 class _PlayOrShuffleSwitch extends StatefulWidget {
-  const _PlayOrShuffleSwitch({
-    super.key,
-  });
+  const _PlayOrShuffleSwitch();
 
   @override
   State<_PlayOrShuffleSwitch> createState() => _PlayOrShuffleSwitchState();
@@ -194,7 +191,6 @@ class _PlayOrShuffleSwitchState extends State<_PlayOrShuffleSwitch> {
 
 class _PlaylistInformation extends StatelessWidget {
   const _PlaylistInformation({
-    super.key,
     required this.playlist,
   });
 
